@@ -1,5 +1,5 @@
 # Build stage
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:17-jdk-jammy AS builder
 
 WORKDIR /build
 
@@ -13,7 +13,7 @@ COPY src ./src
 
 RUN ./gradlew --no-daemon clean bootJar -x test --parallel -Dorg.gradle.jvmargs="-Xmx1g"
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 RUN apk add --no-cache wget
 
 WORKDIR /app
