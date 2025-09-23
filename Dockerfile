@@ -13,16 +13,15 @@ COPY src ./src
 
 RUN ./gradlew --no-daemon clean bootJar -x test --parallel -Dorg.gradle.jvmargs="-Xmx1g"
 
-FROM eclipse-temurin:17-jre-jammy
-RUN apk add --no-cache wget
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:MinRAMPercentage=25.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 
 COPY --from=builder /build/build/libs/*.jar app.jar
-RUN addgroup -S spring && adduser -S spring -G spring \
-    && chown spring:spring /app/app.jar
 
+# Criação de usuário não-root
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
