@@ -1,5 +1,38 @@
 spring:
-  application: 
+  application:
     name: Urubu da Pizza
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS}
+        bindings:
+          pizzaConsumer-in-0:
+            consumer:
+              enable-dlq: true
+              dlq-name: pizza-dlq
+          solicitacaoConsumer-in-0:
+            consumer:
+              enable-dlq: true
+              dlq-name: solicitacao-dlq
+      bindings:
+        pizza-out-0:
+          destination: pizza
+        solicitacao-out-0:
+          destination: solicitacao
+
+        pizzaConsumer-in-0:
+          destination: pizza
+          group: pizzas
+          consumer:
+            concurrency: 1
+            max-attempts: 3
+        solicitacaoConsumer-in-0:
+          destination: solicitacao
+          group: pizzas
+          consumer:
+            concurrency: 1
+            max-attempts: 3
